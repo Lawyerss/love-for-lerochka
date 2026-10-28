@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Тихая роскошь женщины</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+  .deck { position: fixed; inset: 0; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity .45s ease;
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+  .slide img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+    user-select: none; -webkit-user-drag: none;
+  }
+  .nav {
+    position: fixed; top: 0; bottom: 0; width: 25%;
+    border: 0; background: transparent; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav.prev { left: 0; }
+  .nav.next { right: 0; }
+  .counter {
+    position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(0,0,0,.45); color: #e8ddc8;
+    font-size: 13px; letter-spacing: .08em;
+    opacity: .75; pointer-events: none;
+  }
+  @media (hover: none) { .counter { bottom: calc(18px + env(safe-area-inset-bottom)); } }
+</style>
+</head>
+<body>
+  <div class="deck" id="deck">
+    <div class="slide active"><img src="images/1.jpg" alt="Татьяна Тюленева — ментор по раскрытию женской ценности"></div>
+    <div class="slide"><img src="images/2.jpg" alt="Результаты учениц программы «Тихая роскошь женщины»"></div>
+    <div class="slide"><img src="images/3.jpg" alt="Моя личная история"></div>
+    <div class="slide"><img src="images/4.jpg" alt="Моя философия"></div>
+    <div class="slide"><img src="images/5.jpg" alt="Три волшебных дня — три шага возвращения к себе"></div>
+  </div>
+
+  <button class="nav prev" id="prev" aria-label="Назад"></button>
+  <button class="nav next" id="next" aria-label="Вперёд"></button>
+  <div class="counter" id="counter"></div>
+
+<script>
+  var slides = document.querySelectorAll('.slide');
+  var counter = document.getElementById('counter');
+  var i = 0;
+
+  function show(n) {
+    i = (n + slides.length) % slides.length;
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+  }
+
+  document.getElementById('next').addEventListener('click', function () { show(i + 1); });
+  document.getElementById('prev').addEventListener('click', function () { show(i - 1); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') show(i + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') show(i - 1);
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+    if (e.key === 'f') document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  });
+
+  var startX = null;
+  document.addEventListener('touchstart', function (e) { startX = e.changedTouches[0].clientX; }, {passive: true});
+  document.addEventListener('touchend', function (e) {
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) show(dx < 0 ? i + 1 : i - 1);
+    startX = null;
+  }, {passive: true});
+
+  show(0);
+</script>
+</body>
+</html>
